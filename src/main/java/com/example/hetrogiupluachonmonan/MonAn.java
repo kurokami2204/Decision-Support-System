@@ -8,6 +8,7 @@ public class MonAn {
     public String tenDanhMuc;
     public String tenNguyenLieu;
     public String giaTriDinhDuong;
+    public Double danhGia;
 
     public String getMaMonAn() {
         return maMonAn;
@@ -65,6 +66,14 @@ public class MonAn {
         this.giaTriDinhDuong = giaTriDinhDuong;
     }
 
+    public Double getDanhGia() {
+        return danhGia;
+    }
+
+    public void setDanhGia(Double danhGia) {
+        this.danhGia = danhGia;
+    }
+
     public MonAn(String tenMonAn, float giaThanh, String thoiGianChuanBi, String tenDanhMuc) {
         this.tenMonAn = tenMonAn;
         this.giaThanh = giaThanh;
@@ -79,6 +88,16 @@ public class MonAn {
         this.tenDanhMuc = tenDanhMuc;
         this.tenNguyenLieu = tenNguyenLieu;
         this.giaTriDinhDuong = giaTriDinhDuong;
+    }
+
+    public MonAn(String tenMonAn, float giaThanh, String thoiGianChuanBi, String tenDanhMuc, String tenNguyenLieu, String giaTriDinhDuong, Double danhGia) {
+        this.tenMonAn = tenMonAn;
+        this.giaThanh = giaThanh;
+        this.thoiGianChuanBi = thoiGianChuanBi;
+        this.tenDanhMuc = tenDanhMuc;
+        this.tenNguyenLieu = tenNguyenLieu;
+        this.giaTriDinhDuong = giaTriDinhDuong;
+        this.danhGia = danhGia;
     }
 
     @Override

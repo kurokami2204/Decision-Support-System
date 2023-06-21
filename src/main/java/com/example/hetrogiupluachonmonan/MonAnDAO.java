@@ -6,33 +6,49 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class MonAnDAO {
-    public static ArrayList<MonAn> getMonAn() throws SQLException, ParseException {
+    public static List<MonAn> getMonAn() {
         Connection connection = SQLConnect.getConnection();
-        String select = "select TenDanhMuc, TenMonAn, GiaThanh, ThoiGianChuanBi, TenNguyenLieu, GiaTriDinhDuong from monan" +
-                " join danhmuc on danhmuc.MaDanhMuc = monan.MaDanhMuc" +
-                " join thanhphan ON thanhphan.MaMonAn = monan.MaMonAn" +
-                " join nguyenlieu ON nguyenlieu.MaNguyenLieu = thanhphan.MaNguyenLieu" +
-                " where TenMonAn like 'Cơm sốt trứng'";
-        PreparedStatement pe = connection.prepareStatement(select);
+        String select = """
+                SELECT danhmuc.TenDanhMuc, monan.TenMonAn , GROUP_CONCAT(DISTINCT(nguyenlieu.TenNguyenLieu)) as TenNguyenLieu,\s
+                     SUM(nguyenlieu.GiaTriDinhDuong)/count(DISTINCT lichsudatmon.MaDonHang) as GiaTriDinhDuong,
+                     monan.ThoiGianChuanBi, monan.GiaThanh,\s
+                     ROUND(AVG(lichsudatmon.DanhGia),1) AS DanhGia
+                     from thanhphan
+                     JOIN nguyenlieu on thanhphan.MaNguyenLieu=nguyenlieu.MaNguyenLieu\s
+                     JOIN monan on monan.MaMonAn = thanhphan.MaMonAn
+                     JOIN danhmuc on monan.MaDanhMuc= danhmuc.MaDanhMuc
+                     JOIN lichsudatmon on monan.MaMonAn= lichsudatmon.MaMonAn
+                     GROUP BY thanhphan.MaMonAn;
+                """;
+        PreparedStatement pe = null;
+        try {
+            pe = connection.prepareStatement(select);
+            ArrayList<MonAn> list = new ArrayList<>();
 
-        ArrayList<MonAn> list = new ArrayList<>();
+            ResultSet re = pe.executeQuery();
+            while (re.next()){
+                String tenDanhMuc = re.getString("TenDanhMuc");
+                String tenMonAn = re.getString("TenMonAn");
+                float giaThanh = re.getFloat("GiaThanh");
+                String thoiGianChuanBi = re.getString("ThoiGianChuanBi");
+                String tenNguyenLieu = re.getString("TenNguyenLieu");
+                String giaTriDinhDuong = re.getString("GiaTriDinhDuong");
+                Double danhGia = re.getDouble("DanhGia");
+                MonAn monAn = new MonAn(tenMonAn, giaThanh, thoiGianChuanBi, tenDanhMuc, tenNguyenLieu, giaTriDinhDuong, danhGia);
 
-        ResultSet re = pe.executeQuery();
-        while (re.next()){
-            String tenDanhMuc = re.getString("TenDanhMuc");
-            String tenMonAn = re.getString("TenMonAn");
-            float giaThanh = re.getFloat("GiaThanh");
-            String thoiGianChuanBi = re.getString("ThoiGianChuanBi");
-            String tenNguyenLieu = re.getString("TenNguyenLieu");
-            String giaTriDinhDuong = re.getString("GiaTriDinhDuong");
-            MonAn monAn = new MonAn(tenMonAn, giaThanh, thoiGianChuanBi, tenDanhMuc, tenNguyenLieu, giaTriDinhDuong);
+                list.add(monAn);
+            }
+            connection.close();
 
-            list.add(monAn);
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        connection.close();
-        return list;
     }
 
 }
